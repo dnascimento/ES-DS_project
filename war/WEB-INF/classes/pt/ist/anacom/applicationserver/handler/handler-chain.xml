@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<handler-chains xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:javaee="http://java.sun.com/xml/ns/javaee" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<handler-chain>
+		<handler>
+			<handler-name>SecurityHandler</handler-name>
+			<handler-class>pt.ist.anacom.applicationserver.handler.HandlerSD
+			</handler-class>
+		</handler>
+		 <handler>
+			<handler-name>BinzantineHandler</handler-name>
+			<handler-class>pt.ist.anacom.applicationserver.handler.BinzantineHandler
+			</handler-class>
+		</handler> 
+	</handler-chain>
+</handler-chains>

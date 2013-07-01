@@ -1,0 +1,2 @@
+serviceClass: pt.ist.anacom.presentationserver.client.AnacomService
+path: 16B163061F9E45C2138A65F29EA1DB53.gwt.rpc
