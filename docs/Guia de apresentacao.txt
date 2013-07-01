@@ -1,0 +1,104 @@
+==========================================
+===========Guião de Apresentação==========
+==========================================
+
+
+1) Execuções simples do projecto (sem falhas de servidores, sem atrasos de mensagens, 
+sem excepções, sem mensagens corrompidas) 
+
+Dosomething que utilize todas as funções com um caso de série definido:    DAVID
+
+		Operadoras: TMN, OPTIMUS, VODAFONE REPLICADA
+		
+		- criar os 3 TELEMOVEIS VODAFONE
+		- verificar se o getcellphone list está lá
+		- carregar o telemovel
+		- verificar se carregaram os telemoveis
+		- troca de sms correctamente
+		- verificar se recebeu bem a sms
+		- chamadas
+		- verificar a ultima chamada
+		- alterar modos,
+		etc invoca todas as funções, atenção para os println serem claros e para não haver mensagens de erros.
+		
+		
+
+		- Mostrar o GWT com a distributed replicated (uma chamada, um envio de sms, carregamento)   - testar DÁRIO
+		
+
+2) Teste para demonstrar a transacção distribuida:  BALANUTA
+
+	- 2 TELEMOVEIS,
+	- os telemoveis estão off, verifico que não dá para enviar sms  nem para fazer chamada indo buscar a lista das ultimas comunicações
+	- depois ligo o caller, mas deixo o receiver desligado. Verifico a lastCommunication para ver que não registou as chamadas
+	- tento terminar chamada para ver que não iniciei mesmo a chamada
+
+
+_______________________________________________________________________________________
+2) Execuções que mostrem o protocolo de quóruns a funcionar (e.g. execução 
+de pedidos com uma réplica desligada, ou em que algumas mensagens se atrasam) 
+
+Casos a demonstrar:
+		- JmockTestCase:
+			- 12 casos: fazer o printf com breve descrição de cada teste e com um println que seja esclarecedor suficiente
+		- Teste de testar a sequência do servidor para ver se ele altera o estado -------> por fazer, carl.
+		
+		
+
+Uma falha silenciosa.    -> Jmock
+Uma falha silenciosa e uma replica atrasada.  -> Jmock
+Uma falha bizantina com ts superior.   - CASO FINAL  -> Jmock
+Uma falha bizantina com ts superior e uma replica atrasada.   -> Jmock
+Uma falha bizantina e uma replica atrasada com o mesmo valor.  -> Jmock
+teste de serialização de pedidos  (apenas dizer que está feito, mostrar o código)
+
+
+_________________________________________________________________________________________
+3) Execuções que mostrem as componentes de segurança a funcionar (e.g. 
+mensagem corrompida ou mensagem assinada por chave pública previamente revogada) 
+
+ - Mostramos que guardamos tudo em estado percistente (ficheiros)
+ 
+ 
+ 	CATest:
+ 		- Verificar que a CA gera bem certificados,
+ 		- Que revoga os certificados, CRL
+ 		- Valiadação temporal
+ 		
+ 	SecurityTest:
+ 		- Revogação pelo SecSDManager
+ 		- Validar a assinatura digitial
+ 		- Confirmar caso a mensagem tenha sido alterada
+ 		- Assinatura com chave falsa e verificada com a publica correcta.
+ 
+ 
+ - Integridade mensagens:
+ 		- Modificamos a mensagem enviada (Runtime), a alteração torna a assinatura inválida. - AttackHandler 
+ 		  			
+ 
+ - Autenticidade: 
+ 			- Autenticidade dos certificados   -> BizantineHandler 
+ 			- CRL assinada com a chave de outra entidade que não a CA (junit)   - Dário Faz
+ 			- Assinar com a chave de outros (Bizantine)
+
+  - Revogar certificados e expirar temporalmente  (runtime)
+  			1- O certificado está válido a enviar
+  			2 - A rede sofre atraso e o certificado chega expirado, o destino descarta e dá erro (syso)
+			3 - O servidor vai enviar uma nova mensagem mas o cert já está revogado
+  			4- Pede para revogar o certificado à CA
+  			5- Mas envia com o certificado antigo
+  			6- Quem recebe, vê que está na revoked e descarta a mensagem (syso)
+
+
+
+__________________________________________________________________________________________
+4) Execuções que mostrem a solução integrada na sua globalidade
+	
+	- Se 1 farsar a assinatura, é uma falha bizantina que é integrada
+	- Se 3 farsarem, o sistema já não aguenta e informa o cliente 
+
+
+
+- Um servidor vira a atacante, us a um timestamp elevado e envia mensagens por outros (usa handler do pestana)
+
+- teste da latencia da rede    - Bizantine Handler
