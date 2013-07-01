@@ -5,7 +5,7 @@ Authors:
 - David Dias ( @davidsantosdias  )
 - Artur Balanuta (@AliensGoo)
 - Dário Nascimento ( @dnascimento )
-- Karl Kristen
+- Karl Kristen ( @CKristensen )
 
 Used Technologies:
 - Java
@@ -18,7 +18,11 @@ Used Technologies:
 
 Software Engineering description:
 
- Main goals: Model and implement the business logic of a fictional telecom manager and its clients. Implement the model in a WAF structure (considering Presentation, Services, Domain, Persistent Store layers), considering as many design patterns as possible and required. Black and white tests batteries.
+ Main goals: 
+ - Model and implement the business logic of a fictional telecom manager and its clients. 
+ - Implement the model in a WAF structure (organized by Presentation, Services, Domain, Persistent Store layers);
+ - Use as many design patterns as possible and required. 
+ - Black box and white box tests batteries.
  
 
 Distributed Systems description:
