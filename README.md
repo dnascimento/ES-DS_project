@@ -5,7 +5,7 @@ Authors:
 - David Dias ( @davidsantosdias  )
 - Artur Balanuta (@AliensGoo)
 - Dário Nascimento ( @dnascimento )
-- Karl Kristen ( @CKristensen )
+- Carl Kristensen ( @CKristensen )
 
 Used Technologies:
 - Java
