@@ -1,0 +1,38 @@
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+  version="2.4">
+
+  <servlet>
+    <servlet-name>ca</servlet-name>
+    <servlet-class>pt.ist.anacom.ca.CertificationAuthorityWebService</servlet-class>
+    <load-on-startup>1</load-on-startup> <!-- ordem de deploy, 1 depois o 2, etc -->
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>ca</servlet-name>
+    <url-pattern>/anacom</url-pattern>
+  </servlet-mapping>
+  
+    
+  <context-param>
+  	<param-name>serverSecurityName</param-name> 
+  		<!--  Em que: CN->nome do Servidor; O organizationName FIXO; -->
+  	<param-value>CN=CA, O=Tagus</param-value> 
+  </context-param>
+  
+    <context-param>
+  <param-name>keysDirectory</param-name> <!--  Directório onde guardar as chaves, tem de acabar em / -->
+  	<param-value>/tmp/keys/</param-value> 
+  </context-param>
+  
+   <context-param>
+ <param-name>operatorName</param-name>
+  	<param-value>CA</param-value> 
+  </context-param>
+  
+  <listener>
+	  <description>Gere a inicialização de CAs</description>
+	  <listener-class>pt.ist.anacom.ca.CertificationAuthorityServerInitListener</listener-class>
+  </listener>
+</web-app>

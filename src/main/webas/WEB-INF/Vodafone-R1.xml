@@ -1,0 +1,68 @@
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+	version="2.4">
+
+	<servlet>
+		<servlet-name>Operator</servlet-name>
+		<servlet-class>pt.ist.anacom.applicationserver.ApplicationServerWebService</servlet-class>
+	</servlet>
+	
+
+	<servlet-mapping>
+		<servlet-name>Operator</servlet-name>
+		<url-pattern>/Operator</url-pattern>
+	</servlet-mapping>
+
+	<context-param>
+		<param-name>serverName</param-name>
+		<param-value>Vodafone-R1</param-value>
+	</context-param>
+  <context-param>
+  	<param-name>serverSecurityName</param-name> 
+  		<!--  Em que: CN->nome do Servidor; O organizationName FIXO; -->
+  	<param-value>CN=Vodafone-R1, O=Tagus</param-value> 
+  </context-param>
+    <context-param>
+  <param-name>keysDirectory</param-name> <!--  Directório onde guardar as chaves, tem de acabar em / -->
+  	<param-value>/tmp/keys/</param-value> 
+  </context-param>
+	<context-param>
+		<param-name>operatorName</param-name>
+		<param-value>Vodafone</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>operatorPrefix</param-name>
+		<param-value>91</param-value>
+	</context-param>
+
+
+	<context-param>
+		<param-name>smsTariff</param-name>
+		<param-value>10</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>voiceTariff</param-name>
+		<param-value>10</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>videoTariff</param-name>
+		<param-value>10</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>extraTariff</param-name>
+		<param-value>0.5</param-value>
+	</context-param>
+	
+	<context-param>
+		<param-name>bonusTariff</param-name>
+		<param-value>0.5</param-value>
+	</context-param>
+	<listener>
+		<description>Gere a reserva de recursos</description>
+		<listener-class>pt.ist.anacom.applicationserver.ApplicationServerInitListener</listener-class>
+	</listener>
+</web-app>

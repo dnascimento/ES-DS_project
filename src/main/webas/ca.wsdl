@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="caServer" targetNamespace="http://ca"
+	xmlns:tns="http://ca" xmlns="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+	<types>
+		<xsd:schema elementFormDefault="qualified" targetNamespace="http://ca">
+			<xsd:element name="addCertificateToRevokedList" type="tns:addCertificateToRevokedList" />
+			<xsd:element name="addCertificateToRevokedListResponse"
+				type="tns:addCertificateToRevokedListResponse" />
+			<xsd:element name="generateCertificate" type="tns:generateCertificate" />
+			<xsd:element name="generateCertificateResponse" type="tns:generateCertificateResponse" />
+			<xsd:element name="getCertificate" type="tns:getCertificate" />
+			<xsd:element name="getCertificateResponse" type="tns:getCertificateResponse" />
+			<xsd:element name="getX509CRL" type="tns:getX509CRL" />
+			<xsd:element name="getX509CRLResponse" type="tns:getX509CRLResponse" />
+
+
+
+			<xsd:complexType name="getX509CRL">
+				<xsd:sequence />
+			</xsd:complexType>
+			<xsd:complexType name="getX509CRLResponse">
+				<xsd:sequence>
+					<xsd:element minOccurs="0" name="crlList" type="xsd:string" />
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:complexType name="getCertificate">
+				<xsd:sequence>
+					<xsd:element minOccurs="0" name="serverName" type="xsd:string" />
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:complexType name="getCertificateResponse">
+				<xsd:sequence>
+					<xsd:element minOccurs="0" name="certificate" type="xsd:string" />
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:complexType name="generateCertificate">
+				<xsd:sequence>
+					<xsd:element minOccurs="0" name="serverName" type="xsd:string" />
+					<xsd:element minOccurs="0" name="publicKey" type="xsd:string" />
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:complexType name="generateCertificateResponse">
+				<xsd:sequence>
+					<xsd:element minOccurs="0" name="certificate" type="xsd:string" />
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:complexType name="addCertificateToRevokedList">
+				<xsd:sequence>
+					<xsd:element minOccurs="0" name="certificate" type="xsd:string" />
+					<xsd:element minOccurs="0" name="date" type="xsd:dateTime" />
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:complexType name="addCertificateToRevokedListResponse">
+				<xsd:sequence />
+			</xsd:complexType>
+			<xsd:complexType name="CAException">
+				<xsd:sequence>
+					<xsd:element name="msg" nillable="true" type="xsd:string" />
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:element name="CAException" type="tns:CAException" />
+		</xsd:schema>
+	</types>
+
+
+	<message name="addCertificateToRevokedList">
+		<part element="tns:addCertificateToRevokedList" name="parameters"></part>
+	</message>
+	<message name="getCertificateResponse">
+		<part element="tns:getCertificateResponse" name="parameters"></part>
+	</message>
+	<message name="getX509CRLResponse">
+		<part element="tns:getX509CRLResponse" name="parameters"></part>
+	</message>
+	<message name="generateCertificateResponse">
+		<part element="tns:generateCertificateResponse" name="parameters"></part>
+	</message>
+	<message name="getCertificate">
+		<part element="tns:getCertificate" name="parameters"></part>
+	</message>
+
+	<message name="addCertificateToRevokedListResponse">
+		<part element="tns:addCertificateToRevokedListResponse" name="parameters"></part>
+	</message>
+	<message name="generateCertificate">
+		<part element="tns:generateCertificate" name="parameters"></part>
+	</message>
+	<message name="CAException">
+		<part element="tns:CAException" name="CAException"></part>
+	</message>
+	<message name="getX509CRL">
+		<part element="tns:getX509CRL" name="parameters"></part>
+	</message>
+	<portType name="CAPortType">
+		<operation name="getX509CRL">
+			<input message="tns:getX509CRL" name="getX509CRL"></input>
+			<output message="tns:getX509CRLResponse" name="getX509CRLResponse"></output>
+			<fault message="tns:CAException" name="CAException"></fault>
+		</operation>
+
+		<operation name="getCertificate">
+			<input message="tns:getCertificate" name="getCertificate"></input>
+			<output message="tns:getCertificateResponse" name="getCertificateResponse"></output>
+			<fault message="tns:CAException" name="CAException"></fault>
+		</operation>
+		<operation name="generateCertificate">
+			<input message="tns:generateCertificate" name="generateCertificate"></input>
+			<output message="tns:generateCertificateResponse" name="generateCertificateResponse"></output>
+			<fault message="tns:CAException" name="CAException"></fault>
+		</operation>
+		<operation name="addCertificateToRevokedList">
+			<input message="tns:addCertificateToRevokedList" name="addCertificateToRevokedList"></input>
+			<output message="tns:addCertificateToRevokedListResponse"
+				name="addCertificateToRevokedListResponse">
+			</output>
+			<fault message="tns:CAException" name="CAException"></fault>
+		</operation>
+		
+	</portType>
+	<binding name="CAServiceBinding" type="tns:CAPortType">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+
+		<operation name="getX509CRL">
+			<soap:operation soapAction="" style="document" />
+			<input name="getX509CRL">
+				<soap:body use="literal" />
+			</input>
+			<output name="getX509CRLResponse">
+				<soap:body use="literal" />
+			</output>
+			<fault name="CAException">
+				<soap:fault name="CAException" use="literal" />
+			</fault>
+		</operation>
+
+		<operation name="getCertificate">
+			<soap:operation soapAction="" style="document" />
+			<input name="getCertificate">
+				<soap:body use="literal" />
+			</input>
+			<output name="getCertificateResponse">
+				<soap:body use="literal" />
+			</output>
+			<fault name="CAException">
+				<soap:fault name="CAException" use="literal" />
+			</fault>
+		</operation>
+		<operation name="generateCertificate">
+			<soap:operation soapAction="" style="document" />
+			<input name="generateCertificate">
+				<soap:body use="literal" />
+			</input>
+			<output name="generateCertificateResponse">
+				<soap:body use="literal" />
+			</output>
+			<fault name="CAException">
+				<soap:fault name="CAException" use="literal" />
+			</fault>
+		</operation>
+		<operation name="addCertificateToRevokedList">
+			<soap:operation soapAction="" style="document" />
+			<input name="addCertificateToRevokedList">
+				<soap:body use="literal" />
+			</input>
+			<output name="addCertificateToRevokedListResponse">
+				<soap:body use="literal" />
+			</output>
+			<fault name="CAException">
+				<soap:fault name="CAException" use="literal" />
+			</fault>
+		</operation>
+
+	</binding>
+	<service name="CAService">
+		<port binding="tns:CAServiceBinding" name="CAApplicationServicePort">
+			<soap:address location="http://localhost:8080/CA/anacom" />
+		</port>
+	</service>
+</definitions>

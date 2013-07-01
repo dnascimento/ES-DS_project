@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<inherits name='com.google.gwt.user.User' />
+	<source path='dto.operator' />
+	<source path='dto.phone' />
+	<source path='dto' />
+	<source path='exceptions' />
+	<source path='enumerados' />
+	<source path='stubs' />
+</module>

@@ -1,0 +1,976 @@
+package pt.ist.anacom.presentationserver;
+
+import pt.ist.anacom.applicationserver.DatabaseBootstrap;
+import pt.ist.anacom.presentationserver.server.ApplicationServerBridgeDistReplicas;
+import pt.ist.anacom.presentationserver.server.ApplicationServerBridgeDistSoft;
+import pt.ist.anacom.presentationserver.server.ApplicationServerBridgeSoftEng;
+import pt.ist.anacom.service.bridge.ApplicationServerBridge;
+import pt.ist.anacom.shared.dto.CommunicationDTO;
+import pt.ist.anacom.shared.dto.SMSDTO;
+import pt.ist.anacom.shared.dto.SMSListDTO;
+import pt.ist.anacom.shared.dto.VoiceDTO;
+import pt.ist.anacom.shared.dto.operator.OperatorDetailedDTO;
+import pt.ist.anacom.shared.dto.operator.OperatorSimpleDTO;
+import pt.ist.anacom.shared.dto.phone.PhoneDetailedDTO;
+import pt.ist.anacom.shared.dto.phone.PhoneListDTO;
+import pt.ist.anacom.shared.dto.phone.PhoneNumModeDTO;
+import pt.ist.anacom.shared.dto.phone.PhoneNumValueDTO;
+import pt.ist.anacom.shared.dto.phone.PhoneNumberDTO;
+import pt.ist.anacom.shared.enumerados.CellPhoneMode;
+import pt.ist.anacom.shared.enumerados.CellPhoneType;
+import pt.ist.anacom.shared.exceptions.AlreadyExistOperatorException;
+import pt.ist.anacom.shared.exceptions.AnaComException;
+import pt.ist.anacom.shared.exceptions.CellPhoneAlreadyExistsException;
+import pt.ist.anacom.shared.exceptions.CellPhoneNotAvailableException;
+import pt.ist.anacom.shared.exceptions.CellPhoneNotExistsException;
+import pt.ist.anacom.shared.exceptions.IncompatibleModeException;
+import pt.ist.anacom.shared.exceptions.InvalidBalanceException;
+import pt.ist.anacom.shared.exceptions.InvalidNumberException;
+import pt.ist.anacom.shared.exceptions.InvalidOperatorException;
+import pt.ist.anacom.shared.exceptions.InvalidOperatorPrefixException;
+import pt.ist.anacom.shared.exceptions.NotEnoughBalanceException;
+import pt.ist.anacom.shared.exceptions.OperatorAlreadyExistsException;
+import pt.ist.anacom.shared.exceptions.OperatorException;
+import pt.ist.anacom.shared.exceptions.OperatorNotFoundException;
+
+/**
+ * Servidor de apresentação: escolha da implementacao de ES ou ES+SD e API de serviços ao
+ * cliente
+ */
+public class PresentationServer {
+
+	/** Bridge: define se projecto de ES ou SD. */
+	private static ApplicationServerBridge bridge = null;
+
+	/**
+	 * Iniciar servidor definindo a Bridge.
+	 * 
+	 * @param server the server
+	 */
+	public void init(String server) {
+
+		if (server.equals("ES+SD")) {
+			bridge = new ApplicationServerBridgeDistSoft();
+		} else if (server.equals("SD-RepliKate")) {
+			bridge = new ApplicationServerBridgeDistReplicas();
+		} else if (server.equals("ES-only")) {
+			bridge = new ApplicationServerBridgeSoftEng();
+			DatabaseBootstrap.init();
+			DatabaseBootstrap.setup(); // populate
+		} else {
+			throw new RuntimeException("Servlet parameter error: ES+SD nor ES-only nor SD-RepliKate");
+		}
+	}
+
+
+	/**
+	 * Metodo main do servidor.
+	 * 
+	 * @param args the arguments
+	 */
+	public static void main(String args[]) {
+		final PresentationServer ps = new PresentationServer();
+		final String server = System.getProperty("server.type");
+		ps.init(server);
+
+		//Faz método de testes ao servidor remoto
+		System.out.println("/n/n/n/n *** doSomething *** /n/n/n/n");
+		ps.doSomething(); //teste Generico
+		
+		System.out.println("/n/n/n/n *** doSomethingMegaLite *** /n/n/n/n");
+		ps.doSomethingMegaLite();
+		
+		System.out.println("/n/n/n/n *** doSomethingMegaUltraLite *** /n/n/n/n");
+		ps.doSomethingMegaUltraLite();
+		
+		System.out.println("/n/n/n/n *** doTestReplicationIfAbleToReceveComunication *** /n/n/n/n");
+		ps.doTestReplicationIfAbleToReceveComunication(); // teste que testa a integridade
+		
+		System.out.println("/n/n/n/n *** doFinalShowDown *** /n/n/n/n");
+		ps.doFinalShowDown();
+	}
+
+	/**
+	 * Gets the bridge.
+	 * 
+	 * @return Devolve a bridge actual.
+	 */
+	public static ApplicationServerBridge getBridge() {
+		return bridge;
+	}
+
+
+	public void doFinalShowDown() {
+		System.out.println("---------------------------------------------------");
+		System.out.println("                                                   ");
+		System.out.println("        Demonstração de entrega Final              ");
+		System.out.println("                                                   ");
+		System.out.println("---------------------------------------------------");
+
+		final String CELLPHONE1 = "910000020";
+		final String CELLPHONE2 = "910002020";
+		final String CELLPHONE3 = "910202020";
+		final String OPERADOR = "Vodafone";
+		final int INITIALBALANCE = 70;
+
+		System.out.println("                                                   ");
+		System.out.println("1)_________________________________________________");
+		System.out.println("Vamos criar 3 telemóveis e colocar no modo ON");
+		try {
+			addCellPhoneCommand(CellPhoneType.PHONE3G, CELLPHONE1, OPERADOR, INITIALBALANCE);
+			changeCellPhoneModeCommand(CELLPHONE1, CellPhoneMode.ON);
+			System.out.println("Pedido de Criação do telemóvel com o número " + CELLPHONE1 + " enviado");
+			addCellPhoneCommand(CellPhoneType.PHONE2G, CELLPHONE2, OPERADOR, INITIALBALANCE);
+			changeCellPhoneModeCommand(CELLPHONE2, CellPhoneMode.ON);
+			System.out.println("Pedido de Criação do telemóvel com o número " + CELLPHONE2 + " enviado");
+			addCellPhoneCommand(CellPhoneType.PHONE2G, CELLPHONE3, OPERADOR, INITIALBALANCE);
+			changeCellPhoneModeCommand(CELLPHONE3, CellPhoneMode.ON);
+			System.out.println("Pedido de Criação do telemóvel com o número " + CELLPHONE3 + " enviado");
+		} catch (AnaComException e) {
+			System.out.println("Erro na criação de Telemóveis" + e.toString());
+		}
+
+		System.out.println("                                                   ");
+		System.out.println("2)_________________________________________________");
+		System.out.println("Verificar que os 3 telemóveis foram correctamente criados");
+		try {
+			getCellPhoneListCommand(OPERADOR);
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		System.out.println("                                                   ");
+		System.out.println("3)_________________________________________________");
+		System.out.println("Carregar o telemóvel:" + CELLPHONE1);
+		final int MOREBALANCE = 50;
+		try {
+			addBalanceCommand(CELLPHONE1, MOREBALANCE);
+			System.out.println("Pedido de adicionar saldo ao telemóvel com o número" + CELLPHONE1 + "enviado");
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		System.out.println("                                                   ");
+		System.out.println("4)_________________________________________________");
+		System.out.println("Verificar que o carregamento foi bem efectuado");
+		System.out.println("Balanço Initial (em cent): " + INITIALBALANCE);
+		System.out.println("Carregamento de (em cent): " + MOREBALANCE);
+		try {
+			getBalanceCommand(CELLPHONE1);
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		System.out.println("                                                   ");
+		System.out.println("5)_________________________________________________");
+		System.out.println("Envio de um SMS");
+		try {
+			processSMSCommand(CELLPHONE1, CELLPHONE2, "Mensagem de teste para demonstração");
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		System.out.println("                                                   ");
+		System.out.println("6)_________________________________________________");
+		System.out.println("Verificar que a SMS foi enviada correctamente");
+		try {
+			getLastMadeCommunicationCommand(CELLPHONE1);
+			// getLastMadeCommunicationCommand(CELLPHONE2);
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		System.out.println("                                                   ");
+		System.out.println("7)_________________________________________________");
+		System.out.println("Efectuar uma chamada de voz");
+		try {
+			initCallCommand(CELLPHONE1, CELLPHONE2);
+			System.out.println("Foi iniciada a chamada de voz");
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+		try {
+			Thread.sleep(10000); // Sleep por 10 Segundos
+		} catch (InterruptedException e1) {
+		}
+		try {
+			endCallCommand(CELLPHONE1, CELLPHONE2);
+			System.out.println("Foi finalizada a chamada de voz");
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		System.out.println("                                                   ");
+		System.out.println("8)_________________________________________________");
+		System.out.println("Verificar que a chamada de voz foi enviada correctamente");
+		try {
+			getLastMadeCommunicationCommand(CELLPHONE1);
+			// getLastMadeCommunicationCommand(CELLPHONE2);
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+
+
+	}
+
+	private void doSomethingMegaLite() {
+		try {
+
+			System.out.println("-----------add Cell Phone ------------------");
+			addCellPhoneCommand(CellPhoneType.PHONE3G, "910000000", "Vodafone", 5000);
+			addCellPhoneCommand(CellPhoneType.PHONE3G, "910000001", "Vodafone", 5000);
+
+
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+
+		try {
+
+			System.out.println(" \n-----------mudar o modo dos telemoveis para ON tem k dar ok-----------------");
+			changeCellPhoneModeCommand("910000000", CellPhoneMode.ON);
+			changeCellPhoneModeCommand("910000001", CellPhoneMode.ON);
+
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		try {
+
+			System.out.println(" \n-----------Send SMS tem k dar ok-----------------");
+			processSMSCommand("910000000", "910000001", "King Selasiae!");
+			processSMSCommand("910000001", "910000000", "King Selasiae! ");
+
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+
+		try {
+
+			System.out.println(" \n-----------mudar o modo dos telemoveis para off tem k dar ok-----------------");
+			changeCellPhoneModeCommand("910000000", CellPhoneMode.OFF);
+			changeCellPhoneModeCommand("910000001", CellPhoneMode.OFF);
+
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+
+		try {
+
+			System.out.println(" \n-----------Send SMS1 tem k dar mal-----------------");
+			processSMSCommand("910000000", "910000001", "King Selasiae!");
+
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		try {
+
+			System.out.println(" \n-----------Send SMS2 tem k dar mal-----------------");
+			processSMSCommand("910000001", "910000000", "King Selasiae! ");
+
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		try {
+
+			System.out.println(" \n-----------remove Cell Phones ------------------");
+			removeCellPhoneCommand("910000000");
+			removeCellPhoneCommand("910000001");
+
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+
+	}
+
+
+
+
+
+
+
+	/**
+	 * Do something: MAIN DE SD.
+	 */
+	public void doSomething() {
+
+		// TESTES ANTIGOS
+
+		System.out.println("---------Adicionar telemovel -----------");
+		try {
+			addCellPhoneCommand(CellPhoneType.PHONE3G, "910000000", "Vodafone", 1000);
+			addCellPhoneCommand(CellPhoneType.PHONE3G, "910000001", "Vodafone", 1000);
+			addCellPhoneCommand(CellPhoneType.PHONE3G, "911111111", "Vodafone", 1000);
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+
+
+
+		System.out.println("---------Obter lista -----------");
+		try {
+			getCellPhoneListCommand("Vodafone");
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+
+
+		System.out.println("-------Carregar 10eur----------");
+		// carregar telemovel com 10.00e e obter saldo
+		try {
+			addBalanceCommand("910000000", 1000);
+			getBalanceCommand("910000000");
+
+			System.out.println("-------COM BONUS  = 0.5----------");
+			addBalanceCommand("910000000", 1000);
+			getBalanceCommand("910000000");
+
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		System.out.println("--------- Carregar 2000eur-----------");
+		try {
+			addBalanceCommand("910000000", 200000);
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		try {
+			getBalanceCommand("910000000");
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		System.out.println("--------- Registar telemovel ja existente -----------");
+		try {
+			addCellPhoneCommand(CellPhoneType.PHONE3G, "911111111", "Vodafone", 0);
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		System.out.println("--------- Ligar Telemoveis -----------");
+		try {
+			changeCellPhoneModeCommand("911111111", CellPhoneMode.ON);
+			changeCellPhoneModeCommand("910000000", CellPhoneMode.ON);
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		System.out.println("--------- Iniciar Chamada -----------");
+
+		try {
+			initCallCommand("911111111", "910000000");
+
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		System.out.println("--------- Iniciar Chamada para busy (lanca excepcao) -----------");
+		try {
+			initCallCommand("910000000", "911111111");
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		System.out.println("--------- Receptor tenta Terminar Chamada (excpeção) -----------");
+		try {
+			endCallCommand("910000000", "911111111");
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		System.out.println("--------- espera 2 segundos -----------");
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+
+		System.out.println("--------- Terminar Chamada -----------");
+		try {
+			endCallCommand("911111111", "910000000");
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		System.out.println("--------- Ultima Comunicação -----------");
+		try {
+			getLastMadeCommunicationCommand("911111111");
+
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		System.out.println("--------- Terminar Chamada Que não foi iniciada (excepção) -----------");
+		try {
+			endCallCommand("911111111", "910000000");
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+
+		getModeCommand("911111111");
+
+
+		System.out.println("--------- Enviar SMS -----------");
+		try {
+			processSMSCommand("910000000", "911111111", "ola");
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+
+		System.out.println("--------- Ultima Comunicação (sms) -----------");
+		try {
+			getLastMadeCommunicationCommand("910000000");
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		System.out.println("--------- Consultar SMS -----------");
+		try {
+			getReceivedSMSCommand("911111111");
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		System.out.println("--------- Balance  -----------");
+		try {
+			getBalanceCommand("910000000");
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		System.out.println("--------- Remover telemovel nao existente -----------");
+		try {
+			removeCellPhoneCommand("972222222");
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		System.out.println("Desligar o Servidor Vodafone");
+		try {
+			Thread.sleep(20000);
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
+
+		System.out.println("--------- Enviar SMS -----------");
+		try {
+			processSMSCommand("910000000", "911111111", "adeus");
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+	}
+
+
+
+	/**
+	 * Teste para duração de uma chamada em SD
+	 */
+	private void doSomethingMegaUltraLite() {
+		// TESTES ANTIGOS
+
+		System.out.println("---------Adicionar telemovel -----------");
+		try {
+			addCellPhoneCommand(CellPhoneType.PHONE3G, "910000000", "Vodafone", 0);
+			addCellPhoneCommand(CellPhoneType.PHONE3G, "911111111", "Vodafone", 0);
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+
+
+
+		System.out.println("---------Obter lista -----------");
+		try {
+			getCellPhoneListCommand("Vodafone");
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+
+
+		System.out.println("-------Carregar 10eur----------");
+		// carregar telemovel com 10.00e e obter saldo
+		try {
+			addBalanceCommand("910000000", 1000);
+			getBalanceCommand("910000000");
+
+			System.out.println("-------COM BONUS  = 0.5----------");
+			addBalanceCommand("910000000", 1000);
+			getBalanceCommand("910000000");
+
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+
+		System.out.println("--------- Ligar Telemoveis -----------");
+		try {
+			changeCellPhoneModeCommand("911111111", CellPhoneMode.ON);
+			changeCellPhoneModeCommand("910000000", CellPhoneMode.ON);
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		System.out.println("--------- Iniciar Chamada -----------");
+
+		try {
+			initCallCommand("910000000", "911111111");
+
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		System.out.println("--------- espera 2 segundos -----------");
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+
+		System.out.println("--------- Terminar Chamada -----------");
+		try {
+			endCallCommand("910000000", "911111111");
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+
+		System.out.println("--------- Ultima Comunicação Iniciada-----------");
+		try {
+			getLastMadeCommunicationCommand("910000000");
+
+		} catch (AnaComException e) {
+			System.out.println(e.toString());
+		}
+	}
+
+
+	private void doTestReplicationIfAbleToReceveComunication() {
+
+		// try {
+		//
+		// System.out.println("-----------add  2 Cell Phones (910000000, 01) (nao devolve nada)------------------");
+		addCellPhoneCommand(CellPhoneType.PHONE3G, "910000000", "Vodafone", 5000);
+		// addCellPhoneCommand(CellPhoneType.PHONE3G, "910000001", "Vodafone", 5000);
+		//
+		//
+		// } catch (AnaComException e) {
+		// System.out.println(e.toString() + " " + e.getMessage());
+		// }
+		//
+		//
+		//
+		// try {
+		// System.out.println(" \n-----------Fazer chamada de 00 para 01 (tem que mandar exepçao pois os dois estao desligados por defeito)-----------------");
+		// initVoiceCallCommand("910000000", "910000001");
+		// } catch (AnaComException e) {
+		// System.out.println(e.toString() + " " + e.getMessage());
+		// }
+		//
+		// try {
+		// System.out.println(" \n-----------Verificar que 00 nao efectuou qualquer comunicaçao (mostra as comunicaçoes efectuadas)-----------------");
+		// getLastMadeCommunicationCommand("910000000");
+		// } catch (AnaComException e) {
+		// System.out.println(e.toString() + " " + e.getMessage());
+		// }
+		//
+		// System.out.println(" \n \n \n");
+		//
+		//
+		//
+		// try {
+		//
+		// System.out.println(" \n-----------Mudar o modo do delemovel 00 para ON (nao devolve nada)-----------------");
+		// changeCellPhoneModeCommand("910000000", CellPhoneMode.ON);
+		// } catch (AnaComException e) {
+		// System.out.println(e.toString() + " " + e.getMessage());
+		// }
+		//
+		// try {
+		// System.out.println(" \n-----------Fazer chamada de 00 para 01 (tem que mandar exepçao pois o 01 esta desligado)-----------------");
+		// initVoiceCallCommand("910000000", "910000001");
+		// } catch (AnaComException e) {
+		// System.out.println(e.toString() + " " + e.getMessage());
+		// }
+		//
+		// try {
+		// System.out.println(" \n-----------Verificar que nenhum dos televoveis iniciou qualquer comunicaçao (mostra as comunicaçoes efectuadas)-----------------");
+		// getLastMadeCommunicationCommand("910000000");
+		// getLastMadeCommunicationCommand("910000001");
+		// } catch (AnaComException e) {
+		// System.out.println(e.toString() + " " + e.getMessage());
+		// }
+		//
+		// System.out.println(" \n \n \n");
+		//
+		//
+		// try {
+		//
+		// System.out.println(" \n-----------Mudar o modo do delemovel 01 tambem para ON (nao devolve nada)-----------------");
+		// changeCellPhoneModeCommand("910000001", CellPhoneMode.ON);
+		// } catch (AnaComException e) {
+		// System.out.println(e.toString() + " " + e.getMessage());
+		// }
+		//
+		// try {
+		//
+		// System.out.println(" \n-----------Imprime o estado dos telemoveis-----------------");
+		// getModeCommand("910000000");
+		// getModeCommand("910000001");
+		// } catch (AnaComException e) {
+		// System.out.println(e.toString() + " " + e.getMessage());
+		// }
+		//
+		//
+		// try {
+		// System.out.println(" \n-----------Fazer chamada de 00 para 01 (nao tem que devolver nada)-----------------");
+		// initVoiceCallCommand("910000000", "910000001");
+		// } catch (AnaComException e) {
+		// System.out.println(e.toString() + " " + e.getMessage());
+		// }
+		//
+		// try {
+		// System.out.println(" \n-----------Desligar a  chamada de 00 para 01 (nao tem que devolver nada)-----------------");
+		// endCallCommand("910000000", "910000001");
+		// } catch (AnaComException e) {
+		// System.out.println(e.toString() + " " + e.getMessage());
+		// }
+		//
+		//
+		//
+		// try {
+		// System.out.println(" \n-----------Verificar que o telemovel 00 efectuou a comunicaçao (mostra as comunicaçoes efectuadas)-----------------");
+		// getLastMadeCommunicationCommand("910000000");
+		// } catch (AnaComException e) {
+		// System.out.println(e.toString() + " " + e.getMessage());
+		// }
+		//
+		// try {
+		// System.out.println(" \n-----------Verificar que o telemovel 01 efectuou a comunicaçao (mostra as comunicaçoes efectuadas)-----------------");
+		// getLastMadeCommunicationCommand("910000001");
+		// } catch (AnaComException e) {
+		// System.out.println(e.toString() + " " + e.getMessage());
+		// }
+		//
+		//
+		//
+		//
+		// try {
+		//
+		// System.out.println(" \n-----------remove Cell Phones (nao devolve nada) ------------------");
+		// removeCellPhoneCommand("910000000");
+		// removeCellPhoneCommand("910000001");
+		//
+		// } catch (AnaComException e) {
+		// System.out.println(e.toString() + " " + e.getMessage());
+		// }
+
+
+	}
+
+
+
+
+
+
+
+
+	// -----------------------------------------------------------------------------------------------
+	//
+	// API disponibilizada à camada de apresentação para executar operações no sistema
+	//
+	// -----------------------------------------------------------------------------------------------
+
+	/**
+	 * Adiciona saldo a um numero de telemovel em especifico.
+	 * 
+	 * @param number o numero a qual vao ser adicionado o saldo
+	 * @param value o valor em centimos que vai ser adicionado ao telemovel
+	 * @throws OperatorNotFoundException
+	 * @throws CellPhoneNotExistsException
+	 * @throws InvalidOperatorException
+	 * @throws InvalidBalanceException
+	 * @throws AnaComException o valor nao pode ultrapassar os 100€ nesse casso manda
+	 *             exepçao
+	 */
+	public static void addBalanceCommand(String number, int value) throws InvalidBalanceException, InvalidOperatorException, CellPhoneNotExistsException, OperatorNotFoundException {
+		getBridge().addBalance(new PhoneNumValueDTO(number, value, 0));
+	}
+
+	/**
+	 * Cria um operador com o respectivo tarifario que inclui os preços de cada tipo de
+	 * chamada e ainda um valor extra a pagar se a chamada for para fora da operadora.
+	 * 
+	 * @param name nome da Operadora a criar
+	 * @param prefix prefixo da operador que e constituida por dois numeros
+	 * @param smsTariff o cusdo de envio de um sms para dentro da rede
+	 * @param voiceTariff o cusdo de envio de uma chamada de voz para dentro da rede
+	 * @param videoTariff o cusdo de envio de uma chamada de video para dentro da rede
+	 * @param extraTariff o extra a pagar quando se faz uma chamada fora da operador, este
+	 *            valor vem em precentagem e é aplicado ao custo da comunicaçao em causa
+	 * @throws AlreadyExistOperatorException
+	 * @throws InvalidOperatorPrefixException
+	 * @throws OperatorException
+	 * @throws OperatorAlreadyExistsException
+	 * @throws AnaComException the ana com exception
+	 */
+	public static void createOperatorCommand(String name, String prefix, int smsTariff, int voiceTariff, int videoTariff, double extraTariff, double bonus) throws OperatorAlreadyExistsException,
+	OperatorException,
+	InvalidOperatorPrefixException,
+	AlreadyExistOperatorException {
+		OperatorDetailedDTO dto = new OperatorDetailedDTO(name, prefix, smsTariff, voiceTariff, videoTariff, extraTariff, bonus);
+		getBridge().createOperator(dto);
+	}
+
+
+	/**
+	 * inicializa uma chamada entre dois telemóveis.
+	 * 
+	 * @param src numero origem de quem enviou o sms
+	 * @param dest numero destino, quem vai receber o sms
+	 * @throws CellPhoneNotAvailableException
+	 * @throws IncompatibleModeException
+	 * @throws NotEnoughBalanceException
+	 * @throws OperatorNotFoundException
+	 * @throws InvalidOperatorException
+	 * @throws CellPhoneNotExistsException
+	 * @throws AnaComException the ana com exception
+	 */
+	public static void initVoiceCallCommand(String src, String dest) throws CellPhoneNotExistsException,
+	InvalidOperatorException,
+	OperatorNotFoundException,
+	NotEnoughBalanceException,
+	IncompatibleModeException,
+	CellPhoneNotAvailableException {
+
+		VoiceDTO dto = new VoiceDTO(src, dest);
+		getBridge().initiateVoiceCommunication(dto);
+
+	}
+
+	/**
+	 * termina uma chamada entre dois telemóveis.
+	 * 
+	 * @param src numero origem de quem enviou o sms
+	 * @param dest numero destino, quem vai receber o sms
+	 * @param duration duração da chamada
+	 * @throws CellPhoneNotAvailableException
+	 * @throws IncompatibleModeException
+	 * @throws NotEnoughBalanceException
+	 * @throws OperatorNotFoundException
+	 * @throws InvalidOperatorException
+	 * @throws CellPhoneNotExistsException
+	 * @throws AnaComException the ana com exception
+	 */
+	public static void endVoiceCallCommand(String src, String dest, int duration) throws CellPhoneNotExistsException,
+	InvalidOperatorException,
+	OperatorNotFoundException,
+	NotEnoughBalanceException,
+	IncompatibleModeException,
+	CellPhoneNotAvailableException {
+
+		VoiceDTO dto = new VoiceDTO(src, dest, duration);
+		getBridge().endVoiceCommunication(dto);
+
+	}
+
+	/**
+	 * Executa o serviço de enviar um SMS de um telemovel para outro.
+	 * 
+	 * @param src numero origem de quem enviou o sms
+	 * @param dest numero destino, quem vai receber o sms
+	 * @param msg a messag que é passada entre os telemoveis
+	 * @throws CellPhoneNotAvailableException
+	 * @throws IncompatibleModeException
+	 * @throws NotEnoughBalanceException
+	 * @throws OperatorNotFoundException
+	 * @throws InvalidOperatorException
+	 * @throws CellPhoneNotExistsException
+	 * @throws AnaComException the ana com exception
+	 */
+	public static void processSMSCommand(String src, String dest, String msg) throws CellPhoneNotExistsException,
+	InvalidOperatorException,
+	OperatorNotFoundException,
+	NotEnoughBalanceException,
+	IncompatibleModeException,
+	CellPhoneNotAvailableException {
+		SMSDTO dto = new SMSDTO(src, dest, msg);
+		getBridge().processSMS(dto);
+
+	}
+
+
+	/**
+	 * Imprime no terminal a lista completa dos telemoveis e seus saldos de uma
+	 * determinada operadora.
+	 * 
+	 * @param operatorName nome do operador
+	 * @return the cell phone list command
+	 * @throws InvalidOperatorException
+	 * @throws AnaComException the ana com exception
+	 */
+	public static void getCellPhoneListCommand(String operatorName) throws InvalidOperatorException {
+		OperatorSimpleDTO dto = new OperatorSimpleDTO(operatorName);
+		PhoneListDTO resultDto = getBridge().getCellPhoneList(dto);
+		System.out.println(DataPresenter.showPhoneListNumberBalance(resultDto));
+	}
+
+
+	/**
+	 * Cria um dado telemovel num determinado operador.
+	 * 
+	 * @param type tipo de telemobel, ex: 2G ou 3G
+	 * @param number numero de telemovel
+	 * @param operator nome do operador
+	 * @param initBalance o valor inicial do telemovel
+	 * @throws InvalidOperatorException
+	 * @throws InvalidNumberException
+	 * @throws CellPhoneAlreadyExistsException
+	 * @throws AnaComException the ana com exception
+	 */
+	public static void addCellPhoneCommand(CellPhoneType type, String number, String operator, int initBalance) throws CellPhoneAlreadyExistsException,
+	InvalidNumberException,
+	InvalidOperatorException {
+		PhoneDetailedDTO dto = new PhoneDetailedDTO(number, initBalance, type, operator);
+		getBridge().addCellPhone(dto);
+	}
+
+	/**
+	 * remover um telemovel do seu operador.
+	 * 
+	 * @param number the number
+	 * @throws OperatorNotFoundException
+	 * @throws InvalidOperatorException
+	 * @throws InvalidNumberException
+	 * @throws CellPhoneNotExistsException
+	 * @throws AnaComException the ana com exception
+	 * @date 16/Mar/2012
+	 */
+	public static void removeCellPhoneCommand(String number) throws CellPhoneNotExistsException, InvalidNumberException, InvalidOperatorException, OperatorNotFoundException {
+		PhoneNumberDTO dto = new PhoneNumberDTO(number);
+		getBridge().removeCellPhone(dto);
+	}
+
+
+	/**
+	 * getBalance - Obtenção do saldo de um dado telemóvel (remoto/distribuido).
+	 * 
+	 * @param number the number
+	 * @return balance: saldo actual do telemóvel.
+	 * @throws AnaComException the ana com exception
+	 * @throws OperatorNotFoundException
+	 * @throws CellPhoneNotExistsException
+	 * @throws InvalidOperatorException
+	 */
+	public static void getBalanceCommand(String number) throws InvalidOperatorException, CellPhoneNotExistsException, OperatorNotFoundException {
+		PhoneNumberDTO dto = new PhoneNumberDTO(number);
+		PhoneNumValueDTO result = getBridge().getBalance(dto);
+		System.out.println(DataPresenter.showPhoneNumberBalance(result));
+	}
+
+
+
+	/**
+	 * Changes the CellPhone Mode to a new mode.
+	 * 
+	 * @param cellPhoneNumber the cell phone number
+	 * @param newCellPhoneMode the new cell phone mode
+	 * @throws AnaComException the ana com exception
+	 * @throws OperatorNotFoundException
+	 * @throws CellPhoneNotExistsException
+	 * @throws InvalidOperatorException
+	 */
+	public static void changeCellPhoneModeCommand(String cellPhoneNumber, CellPhoneMode newCellPhoneMode) throws InvalidOperatorException,
+	CellPhoneNotExistsException,
+	OperatorNotFoundException,
+	IncompatibleModeException {
+		getBridge().changeCellPhoneMode(new PhoneNumModeDTO(cellPhoneNumber, newCellPhoneMode));
+	}
+
+
+	/**
+	 * getReceivedSMS - get the sms list off a given cellphone.
+	 * 
+	 * @param number the cellphone number
+	 * @throws AnaComException the ana com exception
+	 * @throws OperatorNotFoundException
+	 * @throws CellPhoneNotExistsException
+	 * @throws InvalidOperatorException
+	 */
+	public static void getReceivedSMSCommand(String number) throws InvalidOperatorException, CellPhoneNotExistsException, OperatorNotFoundException {
+		final PhoneNumberDTO dto = new PhoneNumberDTO(number);
+		final SMSListDTO result = getBridge().getReceivedSMS(dto);
+		System.out.println(DataPresenter.showReceivedSMS(result));
+	}
+
+	/**
+	 * getCellPhoneMode - Obtenção do Modo de um dado telemóvel
+	 * 
+	 * @param number the number
+	 * @throws AnaComException the ana com exception
+	 * @throws OperatorNotFoundException
+	 * @throws CellPhoneNotExistsException
+	 * @throws InvalidOperatorException
+	 */
+	public static void getModeCommand(String number) throws InvalidOperatorException, CellPhoneNotExistsException, OperatorNotFoundException {
+
+		final PhoneNumberDTO dto = new PhoneNumberDTO(number);
+		final PhoneNumModeDTO result = getBridge().getCellPhoneMode(dto);
+		System.out.println(DataPresenter.showGetCellPhoneModeDTO(result));
+	}
+
+	/**
+	 * getLastMadeCommunicationCommand - Obtenção da ultima comunicação de um dado
+	 * telemóvel
+	 * 
+	 * @param number the number
+	 * @throws AnaComException the ana com exception
+	 * @throws OperatorNotFoundException
+	 * @throws CellPhoneNotExistsException
+	 * @throws InvalidOperatorException
+	 */
+	public static void getLastMadeCommunicationCommand(String number) throws InvalidOperatorException, CellPhoneNotExistsException, OperatorNotFoundException {
+		final PhoneNumberDTO dto = new PhoneNumberDTO(number);
+		final CommunicationDTO result = getBridge().getLastMadeCommunication(dto);
+		System.out.println(DataPresenter.showLastCall(result));
+
+	}
+
+
+
+	public static void initCallCommand(String srcNumber, String destNumber) throws CellPhoneNotAvailableException,
+	OperatorNotFoundException,
+	CellPhoneNotExistsException,
+	NotEnoughBalanceException,
+	IncompatibleModeException {
+		final VoiceDTO dto = new VoiceDTO(srcNumber, destNumber);
+		getBridge().initiateVoiceCommunication(dto);
+		System.out.println("Call from " + srcNumber + " to " + destNumber + " initiated!");
+	}
+
+	public static void endCallCommand(String srcNumber, String destNumber) throws CellPhoneNotAvailableException,
+	OperatorNotFoundException,
+	CellPhoneNotExistsException,
+	NotEnoughBalanceException,
+	IncompatibleModeException {
+		final VoiceDTO dto = new VoiceDTO(srcNumber, destNumber);
+		getBridge().endVoiceCommunication(dto);
+		System.out.println("Call from " + srcNumber + " to " + destNumber + " ended!");
+
+	}
+
+}

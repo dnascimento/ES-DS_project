@@ -1,0 +1,111 @@
+body {
+  text-align:center;
+}
+
+table.center {
+  margin-left:  auto; 
+  margin-right: auto;
+}
+
+.center {
+  text-align:center;
+}
+
+.top-center {
+  text-align:     center;
+  vertical-align:    top;
+}
+
+.h1 {
+  font-size: 2em;
+  font-weight: bold;
+  color:       darkblue;
+  margin:     10px 10px 10px;
+  text-align: left;
+  border-bottom: 1px solid darkblue;
+}
+
+/** Most GWT widgets already have a style name defined */
+.gwt-DialogBox {
+  width: 400px;
+}
+
+.gwt-PopupPanel {
+  background: silver;
+}
+
+.gwt-Label {
+  color: white;
+}
+
+.dialogVPanel {
+  margin: 5px;
+}
+
+.serverResponseLabelError {
+  color: red;
+}
+
+.labelError {
+  font-size:    8pt;
+  font-weight: bold;
+  color:        red;
+  text-align:center;
+}
+
+.labelInfo {
+  color: silver;
+  text-align: center;
+  margin: 10px 10px 10px;
+  border-top: 1px solid silver;
+}
+
+/** Set ids using widget.getElement().setId("idOfElement") */
+#closeButton {
+  margin: 15px 6px 6px;
+}
+
+/* contacts list table */
+.contactsTable {
+  border: 1px solid silver;
+  border-collapse: collapse;
+  padding: 2px;
+  margin:  6px;
+}
+
+.contactsTableHeader {
+  border: 1px solid silver;
+  text-align:       center;
+  background-color: blue;
+  color:            white;
+}
+
+.contactsTableCell {
+  background-color:white;
+  color:blue;
+}
+
+.contactsTableNameCell {
+  border: 1px solid silver;
+  text-align:left;
+}
+
+.contactsTablePhoneCell {
+  border: 1px solid silver;
+  text-align:right;
+}
+
+.active {
+  background-color:    silver;
+}
+.refreshListButton {
+  margin: 2px 2px 2px;
+}
+
+.addContactButton {
+  margin: 2px 2px 2px;
+}
+
+.deleteContactButton {
+  margin: 1px 1px 1px;
+}

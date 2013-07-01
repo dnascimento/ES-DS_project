@@ -1,0 +1,994 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="anacomApplicationServer" targetNamespace="http://anacom"
+	xmlns:tns="http://anacom" xmlns="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+
+	<!-- This file is not generated automatically -->
+	<types>
+		<xsd:schema elementFormDefault="qualified" targetNamespace="http://anacom">
+
+			<!-- Definição dos tipos de telefone, modos e do telefone -->
+			<xsd:simpleType name="cellPhoneType">
+				<xsd:restriction base="xsd:string">
+					<xsd:enumeration value="PHONE2G" />
+					<xsd:enumeration value="PHONE3G" />
+				</xsd:restriction>
+			</xsd:simpleType>
+			
+			<!--  Enumerado para o tipo de comunicação -->
+			<xsd:simpleType name="CommunicationTypeStub">
+				<xsd:restriction base="xsd:string">
+					<xsd:enumeration value="SENDSMS"/>
+					<xsd:enumeration value="RECEIVESMS"/>
+					<xsd:enumeration value="SENDVOICE"/>
+					<xsd:enumeration value="RECEIVEVOICE"/>
+					<xsd:enumeration value="SENDVIDEO"/>
+					<xsd:enumeration value="RECEIVEVIDEO"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+
+
+			<xsd:element name="cellPhone" type="tns:cellPhone" />
+			<xsd:complexType name="cellPhone">
+				<xsd:all>
+					<xsd:element name="cellPhoneNumber" type="xsd:string" />
+					<xsd:element name="cellPhoneBalance" type="xsd:int" />
+				</xsd:all>
+			</xsd:complexType>
+
+
+			<!-- ########### Tipos de DTO's ############# -->
+			<!-- PHONE -->
+			<xsd:complexType name="PhoneNumberDTOType">
+				<xsd:sequence>
+					<xsd:element name="number" type="xsd:string" />
+					<xsd:element name="sequenceNumber" type="xsd:long" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="PhoneNumValueDTOType">
+				<xsd:sequence>
+					<xsd:element name="number" type="xsd:string" />
+					<xsd:element name="balance" type="xsd:int" />
+					<xsd:element name="sequenceNumber" type="xsd:long" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="PhoneDetailedDTOElem">
+				<xsd:sequence>
+					<xsd:element name="number" type="xsd:string" />
+					<xsd:element name="balance" type="xsd:int" />
+					<xsd:element name="type" type="xsd:string" />
+					<xsd:element name="operator" type="xsd:string" />
+					<xsd:element name="sequenceNumber" type="xsd:long" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="PhoneNumModeDTOType">
+				<xsd:sequence>
+					<xsd:element name="number" type="xsd:string" />
+					<xsd:element name="mode" type="xsd:string" />
+					<xsd:element name="sequenceNumber" type="xsd:long" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+
+			<xsd:complexType name="PhoneListDTOType">
+				<xsd:sequence>
+					<xsd:element name="cellPhoneList" type="tns:PhoneNumValueDTOType"
+						maxOccurs="unbounded" />
+					<xsd:element name="sequenceNumber" type="xsd:long" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="InitiateCommunicationDTOType">
+				<xsd:sequence>
+					<xsd:element name="communicationBeingMade" type="xsd:string"/>
+					<xsd:element name="ableToCommunicate" type="xsd:boolean"/>
+					<xsd:element name="cellPhoneNumber" type="xsd:string"/>
+					<xsd:element name="sequenceNumber" type="xsd:long" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+
+
+
+			<!-- Operator -->
+			<xsd:complexType name="OperatorSimpleDTOType">
+				<xsd:sequence>
+					<xsd:element name="name" type="xsd:string" />
+					<xsd:element name="sequenceNumber" type="xsd:long" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="OperatorDetailedDTOType">
+				<xsd:sequence>
+					<xsd:element name="name" type="xsd:string" />
+					<xsd:element name="prefix" type="xsd:string" />
+					<xsd:element name="smsTrf" type="xsd:int" />
+					<xsd:element name="voiceTrf" type="xsd:int" />
+					<xsd:element name="videoTrf" type="xsd:int" />
+					<xsd:element name="extraTrf" type="xsd:double" />
+					<xsd:element name="bonus" type="xsd:double" />
+					<xsd:element name="sequenceNumber" type="xsd:long" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+
+			<!-- Comunications -->
+			<xsd:complexType name="CommunicationDTOType">
+				<xsd:sequence>
+					<xsd:element name="dest" type="xsd:string" />
+					<xsd:element name="type" type="xsd:string" />
+					<xsd:element name="cost" type="xsd:int" />
+					<xsd:element name="size" type="xsd:int" />
+					<xsd:element name="sequenceNumber" type="xsd:long" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="SmsDTOType">
+				<xsd:sequence>
+					<xsd:element name="src" type="xsd:string" />
+					<xsd:element name="dest" type="xsd:string" />
+					<xsd:element name="msg" type="xsd:string" />
+					<xsd:element name="sequenceNumber" type="xsd:long" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+
+			<xsd:complexType name="SMSListDTOType">
+				<xsd:sequence>
+					<xsd:element name="smsList" type="tns:SmsDTOType"
+						maxOccurs="unbounded" />
+					<xsd:element name="sequenceNumber" type="xsd:long" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="VoiceDTOType">
+				<xsd:sequence>
+					<xsd:element name="src" type="xsd:string" />
+					<xsd:element name="dest" type="xsd:string" />
+					<xsd:element name="duration" type="xsd:int" />
+					<xsd:element name="sequenceNumber" type="xsd:long" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+
+
+			<!-- ####################### Types das Excepções #################### -->
+
+			<!-- ########### Excepções simples ################# -->
+			<xsd:complexType name="simpleExceptionType">
+				<xsd:sequence>
+					<xsd:element name="error" nillable="true" type="xsd:string" />
+					<xsd:element name="sequenceNumber" nillable="true"
+						type="xsd:long" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+
+			<xsd:element name="CellPhoneAlreadyExistsException" type="tns:simpleExceptionType" />
+			<xsd:element name="CellPhoneNotAvailableException" type="tns:simpleExceptionType" />
+			<xsd:element name="CellPhoneNotExistsException" type="tns:simpleExceptionType" />
+			<xsd:element name="IncompatibleModeException" type="tns:simpleExceptionType" />
+			<xsd:element name="InvalidBalanceException" type="tns:simpleExceptionType" />
+			<xsd:element name="InvalidNumberException" type="tns:simpleExceptionType" />
+			<xsd:element name="InvalidParametersExeption" type="tns:simpleExceptionType" />
+			<xsd:element name="InvalidCommunicationException" type="tns:simpleExceptionType" />
+			<xsd:element name="NotEnoughBalanceException" type="tns:simpleExceptionType" />
+			<xsd:element name="OperatorAlreadyExistsException" type="tns:simpleExceptionType" />
+			<xsd:element name="OperatorException" type="tns:simpleExceptionType" />
+			<xsd:element name="OperatorNotFoundException" type="tns:simpleExceptionType" />
+
+
+
+
+
+			<xsd:complexType name="AlreadyExistOperatorException">
+				<xsd:sequence>
+					<xsd:element name="operatorName" nillable="true" type="xsd:string" />
+					<xsd:element name="error" nillable="true" type="xsd:string" />
+					<xsd:element name="sequenceNumber" nillable="true"
+						type="xsd:long" />
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:element name="AlreadyExistOperatorException" type="tns:AlreadyExistOperatorException" />
+
+
+			<xsd:complexType name="InvalidOperatorException">
+				<xsd:sequence>
+					<xsd:element name="operatorName" nillable="true" type="xsd:string" />
+					<xsd:element name="error" nillable="true" type="xsd:string" />
+					<xsd:element name="sequenceNumber" nillable="true"
+						type="xsd:long" />
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:element name="InvalidOperatorException" type="tns:InvalidOperatorException" />
+
+			<xsd:complexType name="InvalidOperatorPrefixException">
+				<xsd:sequence>
+					<xsd:element name="len" nillable="true" type="xsd:int" />
+					<xsd:element name="error" nillable="true" type="xsd:string" />
+					<xsd:element name="sequenceNumber" nillable="true"
+						type="xsd:long" />
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:element name="InvalidOperatorPrefixException" type="tns:InvalidOperatorPrefixException" />
+
+
+
+
+
+
+			<!-- Definição dos elementos utilizados em cada mensagem -->
+			<xsd:element name="addBalanceParam" type="tns:PhoneNumValueDTOType" />
+			<xsd:element name="changeCellPhoneModeParam" type="tns:PhoneNumModeDTOType" />
+			<xsd:element name="getBalanceParam" type="tns:PhoneNumberDTOType" />
+			<xsd:element name="getBalanceResp" type="tns:PhoneNumValueDTOType" />
+			<xsd:element name="GetCellPhoneListParam" type="tns:OperatorSimpleDTOType" />
+			<xsd:element name="GetCellPhoneListResp" type="tns:PhoneListDTOType" />
+			<xsd:element name="GetCellPhoneModeParam" type="tns:PhoneNumberDTOType" />
+			<xsd:element name="GetCellPhoneModeResp" type="tns:PhoneNumModeDTOType" />
+			<xsd:element name="GetReceivedSMSParam" type="tns:PhoneNumberDTOType"></xsd:element>
+			<xsd:element name="GetReceivedSMSResp" type="tns:SMSListDTOType"></xsd:element>
+			<xsd:element name="GetLastMadeCommunicationParam" type="tns:PhoneNumberDTOType"></xsd:element>
+			<xsd:element name="GetLastMadeCommunicationResp" type="tns:CommunicationDTOType"></xsd:element>
+			<xsd:element name="InitCallerVoiceCommunicationParam"
+				type="tns:VoiceDTOType"></xsd:element>
+			<xsd:element name="InitReceiverVoiceCommunicationParam"
+				type="tns:VoiceDTOType"></xsd:element>
+			<xsd:element name="ReceiveSMSParam" type="tns:SmsDTOType" />
+			<xsd:element name="CreateCellPhoneParam" type="tns:PhoneDetailedDTOElem" />
+			<xsd:element name="RemoveCellPhoneParam" type="tns:PhoneNumberDTOType"></xsd:element>
+			<xsd:element name="SendSMSParam" type="tns:SmsDTOType" />
+			<xsd:element name="TerminationCallerVoiceParam" type="tns:VoiceDTOType" />
+			<xsd:element name="TerminationReceiverVoiceParam" type="tns:VoiceDTOType" />
+			<xsd:element name="getSequenceNumberParam" type="tns:PhoneNumberDTOType" />
+			<xsd:element name="getSequenceNumberResp" type="tns:PhoneNumberDTOType" />
+			
+			<xsd:element name="AbleToCommunicateParam" type="tns:InitiateCommunicationDTOType" />
+			<xsd:element name="AbleToCommunicateResp" type="tns:InitiateCommunicationDTOType" />
+		</xsd:schema>
+	</types>
+
+
+
+	<!-- #5 message definitions -->
+	
+
+
+	<!-- Add balance -->
+	<message name="addBalanceMsg">
+		<part name="parameters" element="tns:addBalanceParam" />
+	</message>
+	<message name="addBalanceMsgResponse" />
+
+	<!-- Change mode -->
+	<message name="changeCellPhoneModeMsg">
+		<part name="parameters" element="tns:changeCellPhoneModeParam" />
+	</message>
+	<message name="changeCellPhoneModeMsgResponse" />
+
+
+
+	<!-- Get Balance -->
+	<message name="getBalanceMsg">
+		<part name="parameters" element="tns:getBalanceParam" />
+	</message>
+	<message name="getBalanceMsgResponse">
+		<part name="results" element="tns:getBalanceResp" />
+	</message>
+
+
+	<!-- Get CellPhone List -->
+	<message name="GetCellPhoneListMsg">
+		<part name="parameters" element="tns:GetCellPhoneListParam" />
+	</message>
+	<message name="GetCellPhoneListResponseMsg">
+		<part name="parameters" element="tns:GetCellPhoneListResp" />
+	</message>
+
+
+	<!-- Get CellPhone Mode -->
+	<message name="GetCellPhoneModeMsg">
+		<part name="parameters" element="tns:GetCellPhoneModeParam" />
+	</message>
+	<message name="GetCellPhoneModeResponseMsg">
+		<part name="parameters" element="tns:GetCellPhoneModeResp" />
+	</message>
+
+
+	<!-- Get received sms list -->
+	<message name="GetReceivedSMSMsg">
+		<part name="parameters" element="tns:GetReceivedSMSParam" />
+	</message>
+	<message name="GetReceivedSMSResponseMsg">
+		<part name="parameters" element="tns:GetReceivedSMSResp" />
+	</message>
+
+	<!-- Get Last Made Communication Service -->
+	<message name="GetLastMadeCommunicationMsg">
+		<part name="parameters" element="tns:GetLastMadeCommunicationParam" />
+	</message>
+	<message name="GetLastMadeCommunicationResponseMsg">
+		<part name="parameters" element="tns:GetLastMadeCommunicationResp" />
+	</message>
+
+
+
+
+	<!-- Init Caller Voice Communication -->
+	<message name="InitCallerVoiceCommunicationMsg">
+		<part name="parameters" element="tns:InitCallerVoiceCommunicationParam" />
+	</message>
+	<message name="InitCallerVoiceCommunicationResponseMsg" />
+
+	<!-- Init Receiver Voice Communication -->
+	<message name="InitReceiverVoiceCommunicationMsg">
+		<part name="parameters" element="tns:InitReceiverVoiceCommunicationParam" />
+	</message>
+	<message name="InitReceiverVoiceCommunicationResponseMsg" />
+
+	<!--  AbleToCommunicate -->
+	<message name="AbleToCommunicateMsg">
+		<part name="parameters" element="tns:AbleToCommunicateParam" />
+	</message>
+	<message name="AbleToCommunicateMsgResponse">
+		<part name="results" element="tns:AbleToCommunicateResp" />
+	</message>
+
+
+	<!-- Receive SMS -->
+	<message name="ReceiveSMSMsg">
+		<part name="parameters" element="tns:ReceiveSMSParam" />
+	</message>
+	<message name="ReceiveSMSMsgResponse" />
+
+
+
+
+	<!-- - Register Mobile -->
+	<message name="CreateCellPhoneMsg">
+		<part name="parameters" element="tns:CreateCellPhoneParam" />
+	</message>
+	<message name="CreateCellPhoneMsgResponse" />
+
+
+	<!-- Remove CellPhone -->
+	<message name="removeCellPhoneMsg">
+		<part name="parametersRemove" element="tns:RemoveCellPhoneParam" />
+	</message>
+	<message name="removeCellPhoneMsgResponse" />
+
+
+	<!-- Send SMS -->
+	<message name="SendSMSMsg">
+		<part name="parameters" element="tns:SendSMSParam" />
+	</message>
+	<message name="SendSMSMsgResponse" />
+
+
+	<!-- Terminate Caller Voice -->
+	<message name="TerminationCallerVoiceMsg">
+		<part name="parameters" element="tns:TerminationCallerVoiceParam" />
+	</message>
+	<message name="TerminationCallerVoiceMsgResponse" />
+
+	<!-- Terminate Receiver Voice -->
+	<message name="TerminationReceiverVoiceMsg">
+		<part name="parameters" element="tns:TerminationReceiverVoiceParam" />
+	</message>
+	<message name="TerminationReceiverVoiceMsgResponse" />
+
+	<!-- Get Balance -->
+	<message name="getSequenceNumberMsg">
+		<part name="parameters" element="tns:getSequenceNumberParam" />
+	</message>
+	<message name="getSequenceNumberMsgResponse">
+		<part name="results" element="tns:getSequenceNumberResp" />
+	</message>
+	
+	
+
+
+	<!-- ########## Mensagens das excepções ########## -->
+	<message name="AlreadyExistOperatorException">
+		<part element="tns:AlreadyExistOperatorException" name="AlreadyExistOperatorException" />
+	</message>
+
+	<message name="CellPhoneAlreadyExistsException">
+		<part element="tns:CellPhoneAlreadyExistsException" name="CellPhoneAlreadyExistsException" />
+	</message>
+
+	<message name="CellPhoneNotAvailableException">
+		<part element="tns:CellPhoneNotAvailableException" name="CellPhoneNotAvailableException" />
+	</message>
+
+	<message name="CellPhoneNotExistsException">
+		<part element="tns:CellPhoneNotExistsException" name="CellPhoneNotExistsException" />
+	</message>
+
+	<message name="IncompatibleModeException">
+		<part element="tns:IncompatibleModeException" name="IncompatibleModeException" />
+	</message>
+
+
+
+	<message name="InvalidBalanceException">
+		<part element="tns:InvalidBalanceException" name="InvalidBalanceException" />
+	</message>
+
+	<message name="InvalidNumberException">
+		<part element="tns:InvalidNumberException" name="InvalidNumberException" />
+	</message>
+
+	<message name="InvalidOperatorException">
+		<part element="tns:InvalidOperatorException" name="InvalidOperatorException" />
+	</message>
+
+
+	<message name="InvalidOperatorPrefixException">
+		<part element="tns:InvalidOperatorPrefixException" name="InvalidOperatorPrefixException" />
+	</message>
+
+
+	<message name="InvalidParametersExeption">
+		<part element="tns:InvalidParametersExeption" name="InvalidParametersExeption" />
+	</message>
+
+
+	<message name="NotEnoughBalanceException">
+		<part element="tns:NotEnoughBalanceException" name="NotEnoughBalanceException" />
+	</message>
+
+
+	<message name="OperatorAlreadyExistsException">
+		<part element="tns:OperatorAlreadyExistsException" name="OperatorAlreadyExistsException" />
+	</message>
+
+	<message name="OperatorException">
+		<part element="tns:OperatorException" name="OperatorException" />
+	</message>
+
+	<message name="OperatorNotFoundException">
+		<part element="tns:OperatorNotFoundException" name="OperatorNotFoundException" />
+	</message>
+
+	<message name="InvalidCommunicationException">
+		<part element="tns:InvalidCommunicationException" name="InvalidCommunicationException" />
+	</message>
+
+
+	<!-- #4 port type definitions -->
+
+	<portType name="AnacomApplicationServerPortType">
+		<operation name="AddBalance">
+			<input message="tns:addBalanceMsg" name="addBalanceMsg" />
+			<output message="tns:addBalanceMsgResponse" name="addBalanceMsgResponse" />
+			<fault message="tns:InvalidOperatorException" name="InvalidOperatorException" />
+			<fault message="tns:OperatorNotFoundException" name="OperatorNotFoundException" />
+			<fault message="tns:CellPhoneNotExistsException" name="CellPhoneNotExistsException" />
+			<fault message="tns:InvalidBalanceException" name="InvalidBalanceException" />
+		</operation>
+
+
+
+		<operation name="ChangeCellPhoneMode">
+			<input message="tns:changeCellPhoneModeMsg" name="changeCellPhoneModeMsg" />
+			<output message="tns:changeCellPhoneModeMsgResponse" name="changeCellPhoneModeMsgResponse" />
+			<fault message="tns:CellPhoneNotExistsException" name="CellPhoneNotExistsException" />
+			<fault message="tns:OperatorNotFoundException" name="OperatorNotFoundException" />
+			<fault message="tns:IncompatibleModeException" name="IncompatibleModeException" />
+		</operation>
+
+
+		<operation name="CreateCellPhone">
+			<input message="tns:CreateCellPhoneMsg" name="CreateCellPhoneMsg" />
+			<output message="tns:CreateCellPhoneMsgResponse" name="CreateCellPhoneMsgResponse" />
+			<fault message="tns:InvalidOperatorException" name="InvalidOperatorException" />
+			<fault message="tns:CellPhoneAlreadyExistsException" name="CellPhoneAlreadyExistsException" />
+			<fault message="tns:InvalidNumberException" name="InvalidNumberException" />
+		</operation>
+
+
+
+		<operation name="GetBalance">
+			<input message="tns:getBalanceMsg" name="getBalanceMsg" />
+			<output message="tns:getBalanceMsgResponse" name="getBalanceMsgResponse" />
+			<fault message="tns:OperatorNotFoundException" name="OperatorNotFoundException" />
+			<fault message="tns:CellPhoneNotExistsException" name="CellPhoneNotExistsException" />
+		</operation>
+
+		<operation name="SendSMS">
+			<input message="tns:SendSMSMsg" name="SendSMSMsg" />
+			<output message="tns:SendSMSMsgResponse" name="SendSMSMsgResponse" />
+			<fault message="tns:OperatorNotFoundException" name="OperatorNotFoundException" />
+			<fault message="tns:CellPhoneNotExistsException" name="CellPhoneNotExistsException" />
+			<fault message="tns:NotEnoughBalanceException"
+				name="InNotEnoughBalanceExceptionvalidNumberException" />
+			<fault message="tns:IncompatibleModeException" name="IncompatibleModeException" />
+		</operation>
+
+		<operation name="ReceiveSMS">
+			<input message="tns:ReceiveSMSMsg" name="ReceiveSMSMsg" />
+			<output message="tns:ReceiveSMSMsgResponse" name="ReceiveSMSMsgResponse" />
+			<fault message="tns:OperatorNotFoundException" name="OperatorNotFoundException" />
+			<fault message="tns:CellPhoneNotExistsException" name="CellPhoneNotExistsException" />
+			<fault message="tns:IncompatibleModeException" name="IncompatibleModeException" />
+		</operation>
+
+		<operation name="RemoveCellPhone">
+			<input message="tns:removeCellPhoneMsg" name="removeCellPhoneMsg" />
+			<output message="tns:removeCellPhoneMsgResponse" name="removeCellPhoneMsgResponse" />
+			<fault message="tns:OperatorNotFoundException" name="OperatorNotFoundException" />
+			<fault message="tns:CellPhoneNotExistsException" name="CellPhoneNotExistsException" />
+			<fault message="tns:InvalidNumberException" name="InvalidNumberException" />
+		</operation>
+
+
+
+		<operation name="GetCellPhoneList">
+			<input message="tns:GetCellPhoneListMsg" name="GetCellPhoneListMsg" />
+			<output message="tns:GetCellPhoneListResponseMsg" name="GetCellPhoneListResponse" />
+			<fault message="tns:InvalidOperatorException" name="InvalidOperatorException" />
+		</operation>
+
+		<operation name="GetCellPhoneMode">
+			<input message="tns:GetCellPhoneModeMsg" name="GetCellPhoneModeMsg" />
+			<output message="tns:GetCellPhoneModeResponseMsg" name="GetCellPhoneModeResponseMsg" />
+			<fault message="tns:CellPhoneNotExistsException" name="CellPhoneNotExistsException" />
+			<fault message="tns:OperatorNotFoundException" name="OperatorNotFoundException" />
+		</operation>
+
+		<operation name="GetReceivedSMS">
+			<input message="tns:GetReceivedSMSMsg" name="GetReceivedSMSMsg" />
+			<output message="tns:GetReceivedSMSResponseMsg" name="GetReceivedSMSResponseMsg" />
+			<fault message="tns:InvalidOperatorException" name="InvalidOperatorException" />
+			<fault message="tns:CellPhoneNotExistsException" name="CellPhoneNotExistsException" />
+			<fault message="tns:OperatorNotFoundException" name="OperatorNotFoundException" />
+		</operation>
+
+
+
+
+
+		<operation name="InitCallerVoiceCommunication">
+			<input message="tns:InitCallerVoiceCommunicationMsg" name="InitCallerVoiceCommunicationMsg" />
+			<output message="tns:InitCallerVoiceCommunicationResponseMsg"
+				name="InitCallerVoiceCommunicationResponseMsg" />
+			<fault message="tns:CellPhoneNotAvailableException" name="CellPhoneNotAvailableException" />
+			<fault message="tns:OperatorNotFoundException" name="OperatorNotFoundException" />
+			<fault message="tns:CellPhoneNotExistsException" name="CellPhoneNotExistsException" />
+			<fault message="tns:NotEnoughBalanceException" name="NotEnoughBalanceException" />
+			<fault message="tns:IncompatibleModeException" name="IncompatibleModeException" />
+		</operation>
+
+		<operation name="InitReceiverVoiceCommunication">
+			<input message="tns:InitReceiverVoiceCommunicationMsg" name="InitReceiverVoiceCommunicationMsg" />
+			<output message="tns:InitReceiverVoiceCommunicationResponseMsg"
+				name="InitReceiverVoiceCommunicationResponseMsg" />
+			<fault message="tns:CellPhoneNotAvailableException" name="CellPhoneNotAvailableException" />
+			<fault message="tns:OperatorNotFoundException" name="OperatorNotFoundException" />
+			<fault message="tns:CellPhoneNotExistsException" name="CellPhoneNotExistsException" />
+			<fault message="tns:NotEnoughBalanceException" name="NotEnoughBalanceException" />
+			<fault message="tns:IncompatibleModeException" name="IncompatibleModeException" />
+		</operation>
+		
+		<operation name="AbleToCommunicate">
+			<input message="tns:AbleToCommunicateMsg" name="AbleToCommunicateMsg" />
+			<output message="tns:AbleToCommunicateMsgResponse" name="AbleToCommunicateMsgResponse" />
+			<fault message="tns:OperatorNotFoundException" name="OperatorNotFoundException" />
+			<fault message="tns:CellPhoneNotExistsException" name="CellPhoneNotExistsException" />
+			<fault message="tns:InvalidCommunicationException" name="InvalidCommunicationException"/>
+			
+		</operation>
+		
+		
+
+		<operation name="TerminationCallerVoice">
+			<input message="tns:TerminationCallerVoiceMsg" name="TerminationCallerVoiceMsg" />
+			<output message="tns:TerminationCallerVoiceMsgResponse" name="TerminationCallerVoiceMsgResponse" />
+			<fault message="tns:CellPhoneNotAvailableException" name="CellPhoneNotAvailableException" />
+			<fault message="tns:OperatorNotFoundException" name="OperatorNotFoundException" />
+			<fault message="tns:CellPhoneNotExistsException" name="CellPhoneNotExistsException" />
+			<fault message="tns:NotEnoughBalanceException" name="NotEnoughBalanceException" />
+			<fault message="tns:IncompatibleModeException" name="IncompatibleModeException" />
+		</operation>
+
+		<operation name="TerminationReceiverVoice">
+			<input message="tns:TerminationReceiverVoiceMsg" name="TerminationReceiverVoiceMsg" />
+			<output message="tns:TerminationReceiverVoiceMsgResponse"
+				name="TerminationReceiverVoiceMsgResponse" />
+			<fault message="tns:CellPhoneNotAvailableException" name="CellPhoneNotAvailableException" />
+			<fault message="tns:OperatorNotFoundException" name="OperatorNotFoundException" />
+			<fault message="tns:CellPhoneNotExistsException" name="CellPhoneNotExistsException" />
+			<fault message="tns:NotEnoughBalanceException" name="NotEnoughBalanceException" />
+			<fault message="tns:IncompatibleModeException" name="IncompatibleModeException" />
+		</operation>
+
+		<operation name="GetLastMadeCommunication">
+			<input message="tns:GetLastMadeCommunicationMsg" name="GetLastMadeCommunicationMsg" />
+			<output message="tns:GetLastMadeCommunicationResponseMsg"
+				name="GetLastMadeCommunicationResponseMsg" />
+			<fault message="tns:OperatorNotFoundException" name="OperatorNotFoundException" />
+			<fault message="tns:CellPhoneNotExistsException" name="CellPhoneNotExistsException" />
+			<fault message="tns:InvalidCommunicationException" name="InvalidCommunicationException" />
+		</operation>
+
+		<operation name="GetSequenceNumber">
+			<input message="tns:getSequenceNumberMsg" name="getSequenceNumberMsg" />
+			<output message="tns:getSequenceNumberMsgResponse" name="getSequenceNumberMsgResponse" />
+			<fault message="tns:OperatorNotFoundException" name="OperatorNotFoundException" />
+			<fault message="tns:CellPhoneNotExistsException" name="CellPhoneNotExistsException" />
+		</operation>
+
+
+
+	</portType>
+
+
+
+
+	<!-- #3 binding definitions -->
+
+	<binding name="AnacomApplicationServiceBinding" type="tns:AnacomApplicationServerPortType">
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http"
+			style="document" />
+		<operation name="CreateCellPhone">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="InvalidOperatorException">
+				<soap:fault name="InvalidOperatorException" use="literal" />
+			</fault>
+			<fault name="CellPhoneAlreadyExistsException">
+				<soap:fault name="CellPhoneAlreadyExistsException" use="literal" />
+			</fault>
+			<fault name="InvalidNumberException">
+				<soap:fault name="InvalidNumberException" use="literal" />
+			</fault>
+		</operation>
+
+		<operation name="AddBalance">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="InvalidOperatorException">
+				<soap:fault name="InvalidOperatorException" use="literal" />
+			</fault>
+			<fault name="OperatorNotFoundException">
+				<soap:fault name="OperatorNotFoundException" use="literal" />
+			</fault>
+			<fault name="CellPhoneNotExistsException">
+				<soap:fault name="CellPhoneNotExistsException" use="literal" />
+			</fault>
+			<fault name="InvalidBalanceException">
+				<soap:fault name="InvalidBalanceException" use="literal" />
+			</fault>
+		</operation>
+
+		<operation name="GetBalance">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="OperatorNotFoundException">
+				<soap:fault name="OperatorNotFoundException" use="literal" />
+			</fault>
+			<fault name="CellPhoneNotExistsException">
+				<soap:fault name="CellPhoneNotExistsException" use="literal" />
+			</fault>
+		</operation>
+
+		<operation name="SendSMS">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="OperatorNotFoundException">
+				<soap:fault name="OperatorNotFoundException" use="literal" />
+			</fault>
+			<fault name="CellPhoneNotExistsException">
+				<soap:fault name="CellPhoneNotExistsException" use="literal" />
+			</fault>
+			<fault name="InNotEnoughBalanceExceptionvalidNumberException">
+				<soap:fault name="InNotEnoughBalanceExceptionvalidNumberException"
+					use="literal" />
+			</fault>
+			<fault name="IncompatibleModeException">
+				<soap:fault name="IncompatibleModeException" use="literal" />
+			</fault>
+		</operation>
+
+		<operation name="ReceiveSMS">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="OperatorNotFoundException">
+				<soap:fault name="OperatorNotFoundException" use="literal" />
+			</fault>
+			<fault name="CellPhoneNotExistsException">
+				<soap:fault name="CellPhoneNotExistsException" use="literal" />
+			</fault>
+			<fault name="IncompatibleModeException">
+				<soap:fault name="IncompatibleModeException" use="literal" />
+			</fault>
+		</operation>
+
+		<operation name="RemoveCellPhone">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="OperatorNotFoundException">
+				<soap:fault name="OperatorNotFoundException" use="literal" />
+			</fault>
+			<fault name="CellPhoneNotExistsException">
+				<soap:fault name="CellPhoneNotExistsException" use="literal" />
+			</fault>
+			<fault name="InvalidNumberException">
+				<soap:fault name="InvalidNumberException" use="literal" />
+			</fault>
+		</operation>
+
+		<operation name="ChangeCellPhoneMode">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="CellPhoneNotExistsException">
+				<soap:fault name="CellPhoneNotExistsException" use="literal" />
+			</fault>
+			<fault name="OperatorNotFoundException">
+				<soap:fault name="OperatorNotFoundException" use="literal" />
+			</fault>
+		</operation>
+
+		<operation name="GetCellPhoneList">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="InvalidOperatorException">
+				<soap:fault name="InvalidOperatorException" use="literal" />
+			</fault>
+		</operation>
+
+
+		<operation name="GetCellPhoneMode">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="CellPhoneNotExistsException">
+				<soap:fault name="CellPhoneNotExistsException" use="literal" />
+			</fault>
+			<fault name="OperatorNotFoundException">
+				<soap:fault name="OperatorNotFoundException" use="literal" />
+			</fault>
+		</operation>
+
+		<operation name="GetReceivedSMS">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="InvalidOperatorException">
+				<soap:fault name="InvalidOperatorException" use="literal" />
+			</fault>
+			<fault name="CellPhoneNotExistsException">
+				<soap:fault name="CellPhoneNotExistsException" use="literal" />
+			</fault>
+			<fault name="OperatorNotFoundException">
+				<soap:fault name="OperatorNotFoundException" use="literal" />
+			</fault>
+		</operation>
+
+		
+
+
+
+
+
+
+		<operation name="InitCallerVoiceCommunication">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="CellPhoneNotAvailableException">
+				<soap:fault name="CellPhoneNotAvailableException" use="literal" />
+			</fault>
+			<fault name="OperatorNotFoundException">
+				<soap:fault name="OperatorNotFoundException" use="literal" />
+			</fault>
+			<fault name="CellPhoneNotExistsException">
+				<soap:fault name="CellPhoneNotExistsException" use="literal" />
+			</fault>
+			<fault name="NotEnoughBalanceException">
+				<soap:fault name="NotEnoughBalanceException" use="literal" />
+			</fault>
+			<fault name="IncompatibleModeException">
+				<soap:fault name="IncompatibleModeException" use="literal" />
+			</fault>
+		</operation>
+
+		<operation name="InitReceiverVoiceCommunication">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="CellPhoneNotAvailableException">
+				<soap:fault name="CellPhoneNotAvailableException" use="literal" />
+			</fault>
+			<fault name="OperatorNotFoundException">
+				<soap:fault name="OperatorNotFoundException" use="literal" />
+			</fault>
+			<fault name="CellPhoneNotExistsException">
+				<soap:fault name="CellPhoneNotExistsException" use="literal" />
+			</fault>
+			<fault name="NotEnoughBalanceException">
+				<soap:fault name="NotEnoughBalanceException" use="literal" />
+			</fault>
+			<fault name="IncompatibleModeException">
+				<soap:fault name="IncompatibleModeException" use="literal" />
+			</fault>
+		</operation>
+		
+		
+		<operation name="AbleToCommunicate">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="OperatorNotFoundException">
+				<soap:fault name="OperatorNotFoundException" use="literal" />
+			</fault>
+			<fault name="CellPhoneNotExistsException">
+				<soap:fault name="CellPhoneNotExistsException" use="literal" />
+			</fault>
+			<fault name="InvalidCommunicationException">
+				<soap:fault name="InvalidCommunicationException" use="literal" />
+			</fault>
+		</operation>
+		
+	
+		<operation name="TerminationCallerVoice">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="CellPhoneNotAvailableException">
+				<soap:fault name="CellPhoneNotAvailableException" use="literal" />
+			</fault>
+			<fault name="OperatorNotFoundException">
+				<soap:fault name="OperatorNotFoundException" use="literal" />
+			</fault>
+			<fault name="CellPhoneNotExistsException">
+				<soap:fault name="CellPhoneNotExistsException" use="literal" />
+			</fault>
+			<fault name="NotEnoughBalanceException">
+				<soap:fault name="NotEnoughBalanceException" use="literal" />
+			</fault>
+			<fault name="IncompatibleModeException">
+				<soap:fault name="IncompatibleModeException" use="literal" />
+			</fault>
+		</operation>
+
+		<operation name="TerminationReceiverVoice">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="CellPhoneNotAvailableException">
+				<soap:fault name="CellPhoneNotAvailableException" use="literal" />
+			</fault>
+			<fault name="OperatorNotFoundException">
+				<soap:fault name="OperatorNotFoundException" use="literal" />
+			</fault>
+			<fault name="CellPhoneNotExistsException">
+				<soap:fault name="CellPhoneNotExistsException" use="literal" />
+			</fault>
+			<fault name="NotEnoughBalanceException">
+				<soap:fault name="NotEnoughBalanceException" use="literal" />
+			</fault>
+			<fault name="IncompatibleModeException">
+				<soap:fault name="IncompatibleModeException" use="literal" />
+			</fault>
+		</operation>
+
+		<operation name="GetLastMadeCommunication">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="OperatorNotFoundException">
+				<soap:fault name="OperatorNotFoundException" use="literal" />
+			</fault>
+			<fault name="CellPhoneNotExistsException">
+				<soap:fault name="CellPhoneNotExistsException" use="literal" />
+			</fault>
+			<fault name="InvalidCommunicationException">
+				<soap:fault name="InvalidCommunicationException" use="literal" />
+			</fault>
+		</operation>
+
+		<operation name="GetSequenceNumber">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="OperatorNotFoundException">
+				<soap:fault name="OperatorNotFoundException" use="literal" />
+			</fault>
+			<fault name="CellPhoneNotExistsException">
+				<soap:fault name="CellPhoneNotExistsException" use="literal" />
+			</fault>
+		</operation>
+	</binding>
+
+
+
+
+
+	<!-- #2 service definition -->
+	<service name="anacom">
+		<port name="AnacomApplicationServicePort" binding="tns:AnacomApplicationServiceBinding">
+			<soap:address location="http://localhost/anacom/" />
+		</port>
+	</service>
+</definitions>

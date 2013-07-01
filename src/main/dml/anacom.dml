@@ -1,0 +1,165 @@
+package pt.ist.anacom.domain;
+
+class NetworkManager;
+
+class Operator{
+	String name;
+	String prefix;
+	long seqNumber; 
+}
+
+class Plan{
+	int SMSTariff;
+	int voiceTariff;
+	int videoTariff;
+	double extraChargeTariff;
+	double bonus;
+}
+
+class CellPhone{
+	String number;
+	int balance;
+	String speakingTo;
+	boolean isCallInitiator;
+	DateTime voiceInitTime;
+}
+
+class network.Network2G extends CellPhone;
+class network.Network3G extends CellPhone;
+
+class mode.Mode;
+
+class mode.Silence extends mode.Mode;
+class mode.OFF extends mode.Mode;
+class mode.ON extends mode.Mode;
+class mode.Busy extends mode.Mode;
+
+class communication.Communication{
+	String callerID;
+	String receiverID;
+	int cost;
+}
+
+
+
+class communication.SMS extends communication.Communication {
+	String message;
+}
+class communication.Voice extends communication.Communication{
+	int duration;
+	
+}
+class communication.Video extends communication.Communication{
+	int duration;	
+}
+
+//Relations
+relation NetworkManagerHasOperators {
+	NetworkManager playsRole NetworkManager {
+		multiplicity 1..1;
+	}
+	Operator playsRole operator {
+		multiplicity *;
+	} 
+}
+
+relation OperatorHasCellPhones {
+	Operator playsRole operator {
+		multiplicity 1..1;
+	}
+	CellPhone playsRole cellPhone {
+		multiplicity *;
+	}
+}
+
+relation CellPhoneHasMode {
+	CellPhone playsRole cellPhone {
+		multiplicity 1..1;
+	}
+	mode.Mode playsRole mode {
+		multiplicity 1..1;
+	}
+}
+
+relation CellPhoneHasLastComunication {
+	CellPhone playsRole cellPhoneCall {
+		multiplicity 1..1;
+	}
+	communication.Communication playsRole lastComunication {
+		multiplicity 1..1;
+	}
+}
+
+
+relation CellPhoneHasMadeSMS {
+	CellPhone playsRole callerCellPhone {
+		multiplicity 0..1;
+	}
+	communication.SMS playsRole madeSMS {
+		multiplicity *;
+	}
+}
+
+relation CellPhoneHasMadeVideo {
+	CellPhone playsRole callerCellPhone {
+		multiplicity 0..1;
+	}
+	communication.Video playsRole madeVideo {
+		multiplicity *;
+	}
+}
+
+relation CellPhoneHasMadeVoice {
+	CellPhone playsRole callerCellPhone {
+		multiplicity 0..1;
+	}
+	communication.Voice playsRole madeVoice {
+		multiplicity *;
+	}
+}
+
+relation CellPhoneHasReceivedSMS {
+	CellPhone playsRole calledCellPhone {
+		multiplicity 0..1;
+	}
+	communication.SMS playsRole receivedSMS {
+		multiplicity *;
+	}
+}
+
+relation CellPhoneHasReceivedVideo {
+	CellPhone playsRole calledCellPhone {
+		multiplicity 0..1;
+	}
+	communication.Video playsRole receivedVideo {
+		multiplicity *;
+	}
+}
+
+relation CellPhoneHasReceivedVoice {
+	CellPhone playsRole calledCellPhone {
+		multiplicity 0..1;
+	}
+	communication.Voice playsRole receivedVoice {
+		multiplicity *;
+	}
+}
+
+relation OperatorHasPlan{
+	Operator playsRole operator{
+		multiplicity 1..1;
+	}
+	Plan playsRole plan{
+		multiplicity 1..1;
+	}
+}
+
+relation CellPhoneHasModeBeforeCall {
+	CellPhone playsRole communicatingCellPhone {
+		multiplicity 1..1;
+	}
+	
+	mode.Mode playsRole modeBeforeCall {
+		multiplicity 1..1;
+	}
+}
